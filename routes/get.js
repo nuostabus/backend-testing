@@ -13,7 +13,13 @@ router.get('/books', (req, res) => {
     });
   }
 
-  res.send(_books);
+  //   res.send(_books);
+
+  if (_books.length > 0) {
+    res.send(_books);
+  } else {
+    res.send('Nothing found, try another title');
+  }
 });
 
 module.exports = router;
