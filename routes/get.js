@@ -13,8 +13,6 @@ router.get('/books', (req, res) => {
     });
   }
 
-  //   res.send(_books);
-
   if (_books.length > 0) {
     res.send(_books);
   } else {
