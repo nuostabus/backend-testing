@@ -12,19 +12,33 @@ router.get('/books', async (req, res) => {
   //     return book.title.toLowerCase().includes(req.query.title.toLowerCase());
   //   });
   // }
+  const title = req.query.title;
 
+  if (title) {
+    const results = await asyncMySQL(
+      `SELECT * FROM \`book-details\` WHERE title LIKE ${title};`
+    );
+    if (results.length > 0) {
+      res.send(results);
+      return;
+    } else {
+      res.send(`No match`);
+      return;
+    }
+  }
+
+  //get all data from SQL
+
+  if (!title) {
+    const results = await asyncMySQL(`SELECT * FROM \`book-details\`;`);
+    res.send(results);
+    return;
+  }
   // if (_books.length > 0) {
   //   res.send(_books);
   // } else {
   //   res.send('Nothing found, try another title');
   // }
-
-  const title = req.query.title;
-
-  //get data from SQL
-  const results = await asyncMySQL(`SELECT * FROM \`book-details\`;`);
-
-  console.log(results);
 });
 
 module.exports = router;
