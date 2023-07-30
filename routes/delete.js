@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const asyncMySQL = require('../mysql/connection');
 
-router.delete('/book/:id', (req, res) => {
+router.delete('/book/:id', async (req, res) => {
   const id = Number(req.params.id);
 
   //check that id is a number
@@ -10,16 +11,9 @@ router.delete('/book/:id', (req, res) => {
     return;
   }
 
-  const indexOf = req.books.findIndex((item) => {
-    return Number(item.isbn) === id;
-  });
-
-  if (indexOf < 0) {
-    res.send(`the id wasn't found`);
-  }
-
-  req.books.splice(indexOf, 1);
-
+  const result = await asyncMySQL(
+    `DELETE from \`book-details\` WHERE isbn LIKE ${id}`
+  );
   res.send('The book with the id: ' + id + ' was removed');
 });
 

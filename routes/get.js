@@ -4,41 +4,28 @@ const asyncMySQL = require('../mysql/connection');
 
 //send all books
 router.get('/books', async (req, res) => {
-  // let _books = [...req.books];
+  const results = await asyncMySQL(`SELECT * FROM \`book-details\`;`);
 
-  // //send specific titles
-  // if (req.query.title) {
-  //   _books = _books.filter((book) => {
-  //     return book.title.toLowerCase().includes(req.query.title.toLowerCase());
-  //   });
-  // }
-  const title = req.query.title;
-
-  if (title) {
-    const results = await asyncMySQL(
-      `SELECT * FROM \`book-details\` WHERE title LIKE ${title};`
-    );
-    if (results.length > 0) {
-      res.send(results);
-      return;
-    } else {
-      res.send(`No match`);
-      return;
-    }
+  if (results.length > 0) {
+    return res.send(results);
   }
+  return res.send('something went wrong');
+});
 
-  //get all data from SQL
+router.get('/books/:title', async (req, res) => {
+  const title = req.params.title;
 
-  if (!title) {
-    const results = await asyncMySQL(`SELECT * FROM \`book-details\`;`);
+  const results = await asyncMySQL(
+    `SELECT * FROM \`book-details\` WHERE title LIKE ${title};`
+  );
+
+  if (results.length > 0) {
     res.send(results);
     return;
   }
-  // if (_books.length > 0) {
-  //   res.send(_books);
-  // } else {
-  //   res.send('Nothing found, try another title');
-  // }
+
+  res.send(`No match`);
+  return;
 });
 
 module.exports = router;

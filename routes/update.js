@@ -1,28 +1,33 @@
 const express = require('express');
 const router = express.Router();
+const asyncMySQL = require('../mysql/connection');
 
-router.patch('/book/:isbn', (req, res) => {
-  console.log(req.body, req.params.isbn);
-  const { isbn, title, author } = req.body;
+router.patch('/book/:isbn', async (req, res) => {
+  const { title, author } = req.body;
 
-  const indexOf = req.books.findIndex((book) => {
-    return book.isbn === req.params.isbn;
-  });
+  const isbn = Number(req.params.isbn);
 
-  if (indexOf < 0) {
-    return res.send('ISBN not found');
+  //check that isbn is a number
+  if (Number.isNaN(isbn)) {
+    res.send('invalid id');
+    return;
   }
 
-  if (title) {
-    req.books[indexOf].title = title;
+  try {
+    if (title && typeof title === 'string') {
+      await asyncMySQL(
+        `UPDATE \`book-details\` SET title = "${title}" WHERE isbn LIKE "${isbn}";`
+      );
+    }
+
+    if (author && typeof author === 'string') {
+      await asyncMySQL(
+        `UPDATE \`book-details\` SET author = "${author}" WHERE isbn LIKE "${isbn}";`
+      );
+    }
+  } catch (error) {
+    res.send('error' + error.sqlMessage);
   }
-
-  if (author) {
-    req.books[indexOf].author = author;
-  }
-
-  req.books[indexOf] = { ...req.books[indexOf], ...req.body };
-
   res.send('The data was successfully updated');
 });
 
